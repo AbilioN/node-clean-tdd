@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/AbilioN/node-clean-tdd/issues"
   },
-  "homepage": "https://github.com/AbilioN/node-clean-tdd#readme"
+  "homepage": "https://github.com/AbilioN/node-clean-tdd#readme",
+  "devDependencies": {
+    "git-commit-msg-linter": "^3.1.0"
+  }
 }
