@@ -1,18 +1,37 @@
 import { SignUpController} from './signup'
-import  { MissingParamError} from '../errors/missing-error'
+import  { MissingParamError} from '../errors/missing-param-error'
+import { InvalidParamError} from '../errors/invalid-param-error'
+import {EmailValidator } from '../protocols/email-validator'
+import { badRequest } from '../helpers/http-helper'
 
-const makeSut = (): SignUpController => {
-    return new SignUpController()
+interface SutTypes {
+    sut: SignUpController
+    emailValidatorStub: EmailValidator
+}
+
+const makeSut = (): SutTypes => {
+    class EmailValidatorStub implements EmailValidator{
+        isValid(email: string): boolean {
+            return true
+        }
+    }
+    const emailValidatorStub = new EmailValidatorStub()
+    const sut = new SignUpController(emailValidatorStub)
+
+    return { 
+        sut,
+        emailValidatorStub
+    }
 }
 
 describe('SignUp Controller', () => {
     test('SignUp requires name', () => {
-        const sut = makeSut();
+        const {sut} = makeSut();
         const httpRequest = {
             body: {
                 email: 'any_email',
                 password: 'any_password',
-                passwordConfirmation: 'any_password'
+                password_confirmation: 'any_password'
             }
         }
         const htttpResponse = sut.handle(httpRequest)
@@ -22,12 +41,13 @@ describe('SignUp Controller', () => {
     })
 
     test('SignUp requires email', () => {
-        const sut = new SignUpController();
+        const {sut} = makeSut();
+
         const httpRequest = {
             body: {
                 name: 'any_name',
                 password: 'any_password',
-                passwordConfirmation: 'any_password'
+                password_confirmation: 'any_password'
             }
         }
         const htttpResponse = sut.handle(httpRequest)
@@ -37,7 +57,8 @@ describe('SignUp Controller', () => {
     })
 
     test('SignUp requires password', () => {
-        const sut = new SignUpController();
+        const {sut} = makeSut();
+
         const httpRequest = {
             body: {
                 name: 'any_name',
@@ -52,7 +73,8 @@ describe('SignUp Controller', () => {
     })
 
     test('SignUp requires password confirmation', () => {
-        const sut = new SignUpController();
+        const {sut} = makeSut();
+
         const httpRequest = {
             body: {
                 name: 'any_name',
@@ -64,5 +86,23 @@ describe('SignUp Controller', () => {
 
         expect(htttpResponse.statusCode).toBe(400)
         expect(htttpResponse.body).toEqual(new MissingParamError("password_confirmation"))
+    })
+
+    test('SignUp requires a valid email format', () => {
+        const {sut , emailValidatorStub} = makeSut()
+        jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
+        const httpRequest = {
+            body: {
+                name: 'any_name',
+                email: 'invalid_email@email.com',
+                password: 'any_password',
+                password_confirmation: 'any_password'
+
+            }
+        }
+        const htttpResponse = sut.handle(httpRequest)
+
+        expect(htttpResponse.statusCode).toBe(400)
+        expect(htttpResponse.body).toEqual(new InvalidParamError("email"))
     })
 })
