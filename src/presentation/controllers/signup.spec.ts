@@ -1,9 +1,13 @@
 import { SignUpController} from './signup'
 import  { MissingParamError} from '../errors/missing-error'
 
+const makeSut = (): SignUpController => {
+    return new SignUpController()
+}
+
 describe('SignUp Controller', () => {
     test('SignUp requires name', () => {
-        const sut = new SignUpController();
+        const sut = makeSut();
         const httpRequest = {
             body: {
                 email: 'any_email',
