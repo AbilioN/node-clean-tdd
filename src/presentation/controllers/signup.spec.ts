@@ -17,6 +17,15 @@ const makeEmailValidator = (): EmailValidator => {
     return new EmailValidatorStub()
 }
 
+// const makeAddAccount = (): AddAccount => {
+//     class AddAccountStub implements AddAccount{
+//         add(email: string): boolean {
+//             return true
+//         }
+//     }
+//     return new EmailValidatorStub()
+// }
+
 const makeSut = (): SutTypes => {
     const emailValidatorStub = makeEmailValidator()
     const sut = new SignUpController(emailValidatorStub)
@@ -166,4 +175,25 @@ describe('SignUp Controller', () => {
         expect(htttpResponse.statusCode).toBe(400)
         expect(htttpResponse.body).toEqual(new InvalidParamError('passwordConfirmation'))
     })
+    
+    // test('Should call AddAccount with correct values', () => {
+    //     const {sut , addAccountStub} = makeSut()
+    //     const addSpy = jest.spyOn(addAccountStub, 'add')
+    //     const httpRequest = {
+    //         body: {
+    //             name: 'any_name',
+    //             email: 'invalid_email@email.com',
+    //             password: 'any_password',
+    //             password_confirmation: 'any_password'
+
+    //         }
+    //     }
+    //     const htttpResponse = sut.handle(httpRequest)
+
+    //     expect(addSpy).toHaveBeenCalledWith({
+    //         name: 'any_name',
+    //         email: 'invalid_email@email.com',
+    //         password: 'any_password',
+    //     })
+    // })
 })
